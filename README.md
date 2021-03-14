@@ -1,8 +1,8 @@
 # Sistema-Planetario-Nave
 
 [CIU-Sistema-Planetario](https://github.com/Chgv99/CIU-Sistema-Planetario) pero con una cámara añadida a modo de nave espacial.
-Este readme contiene la misma información que el de [CIU-Sistema-Planetario](https://github.com/Chgv99/CIU-Sistema-Planetario) pero con información y notas sobre la implementación de la [Cámara]()
 
+Este readme contiene la misma información que el de [CIU-Sistema-Planetario](https://github.com/Chgv99/CIU-Sistema-Planetario) pero con información y notas sobre la implementación de la [Cámara](https://github.com/Chgv99/CIU-Sistema-Planetario-Nave#Funcionamiento-de-la-cámara). Es decir, posiblemente la información que se lea sobre algunos aspectos del programa no concuerde con lo que ocurre en esta versión de Sistema-Planetario. Véase la sección de [errores](https://github.com/Chgv99/CIU-Sistema-Planetario-Nave#Errores) para conocer todas las funcionalidades afectadas por la implementación de la cámara (nave).
 
 [CIU-Sistema-Planetario](https://github.com/Chgv99/CIU-Sistema-Planetario) es un prototipo de sistema planetario hecho con [Processing 3](https://processing.org/) para la asignatura Creando Interfaces de Usuario.
 
@@ -17,8 +17,9 @@ Para ejecutar el programa, descomprime el .zip y ejecuta "SistemaPlanetarioNave/
 # Índice
 * [Descripción](https://github.com/Chgv99/CIU-Sistema-Planetario-Nave#Descripción)
 * [Instrucciones de uso](https://github.com/Chgv99/CIU-Sistema-Planetario-Nave#Instrucciones-de-uso)
-* * [Uso de la cámara](https://github.com/Chgv99/CIU-Sistema-Planetario-Nave#Uso-de-la-cámara)
+  * [Uso de la cámara](https://github.com/Chgv99/CIU-Sistema-Planetario-Nave#Uso-de-la-cámara)
 * [Funcionamiento](https://github.com/Chgv99/CIU-Sistema-Planetario-Nave#Funcionamiento)
+  * [Funcionamiento de la cámara](https://github.com/Chgv99/CIU-Sistema-Planetario-Nave#Funcionamiento-de-la-cámara)
 * [Errores conocidos](https://github.com/Chgv99/CIU-Sistema-Planetario-Nave#Errores)
 * [Referencias](https://github.com/Chgv99/CIU-Sistema-Planetario-Nave#Referencias)
 ---
@@ -45,7 +46,9 @@ Desactivar la iluminación permitirá visualizar mejor los planetas que se encue
 
 ## Uso de la cámara
 
-lorem ipsum
+Para acceder a la cámara (nave) debe pulsarse "espacio". En este modo, el usuario es capaz de desplazarse por el sistema planetario con "W", "A", "S" y "D", además de rodar con las flechas "izquierda" y "derecha" y de inclinar el morro con las flechas "arriba" y "abajo". Se puede volver al modo de visualización normal pulsando de nuevo "espacio".
+
+Véase la sección de [errores](https://github.com/Chgv99/CIU-Sistema-Planetario-Nave#Errores)
 
 # Funcionamiento
 
@@ -172,6 +175,76 @@ void addCelestialBody(PShape cuerpo, float translation_speed, float rotation_spe
 }
 ```
 
+## Funcionamiento de la cámara
+
+Para los controles de la nave se han añadido las flechas direccionales y las teclas "wasd" para que el usuario pueda escoger por donde moverse y hacia donde mirar.
+
+```processing
+if (keyPressed) {
+  if (key == CODED) {
+    if (s_ship) {
+      if (keyCode == UP) {
+        py += 1;
+      }
+      if (keyCode == DOWN) {
+        py -= 1;
+      }
+      if (keyCode == LEFT) {
+        px += 1;
+      }
+      if (keyCode == RIGHT) {
+        px -= 1;
+      }
+    }
+  } else {
+    if (s_ship) {
+      if (key == 'w') {
+        vz += 5;
+      }
+      if (key == 's') {
+        vz -= 5;
+      }
+      if (key == 'a') {
+        vx -= 1;
+      }
+      if (key == 'd') {
+        vx += 1;
+      }
+    } else { ... }
+  }
+}
+```
+
+El movimiento de la nave se logra moviendo el escenario entero mediante las funciones "translate()", "rotateX()", "rotateY()" y "rotateZ()".
+
+```processing
+void draw()
+{
+  background(0);
+  camera(0, 0, 1, 0, 0, 0, 0, 1, 0);
+  if (s_ship) {
+    rotateZ(radians(px));
+    rotateX(radians(py));
+    rotateY(radians(vx));
+    translate(-vz, 0, -vz);
+  } else {
+    camera(0, 0, -translate_z, 0, 0, 0, 0, 1, 0);
+    pushMatrix();
+    translate(0, 0, 0);
+    textSize(24);
+    text("[Right Mouse Drag] Rotate    [L] Enable/disable lights    [+][-] Zoom in/out", 0, height/2 -20, -translate_z);
+    fill(255);
+    stroke(255);
+    popMatrix();
+    if (right_drag) {
+      rot_y += mouseX - pmouseX;
+      rot_x += mouseY - pmouseY;
+    }
+    rotateY(radians(rot_y));
+    rotateX(-radians(rot_x));
+  }
+```
+
 # Errores
 
 * [Rotación](https://github.com/Chgv99/CIU-Sistema-Planetario-Nave#Rotación)
@@ -186,6 +259,18 @@ Esto resulta en que se pierda el control de la rotación y sea un poco incómodo
 ## Texto
 
 El texto que contiene el nombre de cada planeta rota con el mismo. Provocando que a un lado del Sol sean legibles y al otro lado no por estar invertidos.
+
+## Cámara
+
+### Desplazamiento
+
+Al usar la serie de métodos "rotate", no es posible controlar los ejes que se desplazan junto con el sistema planetario, desencadenando una serie de problemas como la imposibilidad de desplazarse hacia delante en otro eje que no sea el que atraviesa la estrella y la cámara al comienzo de la ejecución (eje Z). 
+
+Se intentó implementar una PShape que englobara todo el sistema para trabajar con rotaciones sobre ese objeto sin que afectara a los ejes y poder mover la cámara libremente pero no ha sido posible debido a falta de tiempo.
+
+### HUD
+
+El HUD ha desaparecido. No he sido capaz de colocarlo de nuevo ya que he utilizado el método "camera()" para que ambos modos de visualización (nave y normal) no influyeran el uno sobre el otro a la hora de alternar entre ellos. Aparentemente, mostrar texto usando "camera()" se vuelve más complicado de la manera en la que lo he estado implementando yo.
 
 # Referencias
 * [Processing 3](https://processing.org/)
