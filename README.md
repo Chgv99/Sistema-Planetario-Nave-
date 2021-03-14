@@ -243,6 +243,8 @@ void draw()
     rotateY(radians(rot_y));
     rotateX(-radians(rot_x));
   }
+  ...
+}
 ```
 
 # Errores
