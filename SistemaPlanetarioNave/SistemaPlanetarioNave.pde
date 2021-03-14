@@ -165,16 +165,16 @@ void key() {
     if (key == CODED) {
       if (s_ship) {
         if (keyCode == UP) {
-          py -= 1;
-        }
-        if (keyCode == DOWN) {
           py += 1;
         }
+        if (keyCode == DOWN) {
+          py -= 1;
+        }
         if (keyCode == LEFT) {
-          px -= 1;
+          px += 1;
         }
         if (keyCode == RIGHT) {
-          px += 1;
+          px -= 1;
         }
       }
     } else {
@@ -186,10 +186,10 @@ void key() {
           vz -= 5;
         }
         if (key == 'a') {
-          vx += 1;
+          vx -= 1;
         }
         if (key == 'd') {
-          vx -= 1;
+          vx += 1;
         }
       } else {
         //Zoom
