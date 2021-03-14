@@ -249,6 +249,7 @@ void draw()
 
 * [Rotación](https://github.com/Chgv99/CIU-Sistema-Planetario-Nave#Rotación)
 * [Texto](https://github.com/Chgv99/CIU-Sistema-Planetario-Nave#Texto)
+* [Cámara](https://github.com/Chgv99/CIU-Sistema-Planetario-Nave#Cámara)
 
 ## Rotación
 
